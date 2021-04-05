@@ -1,34 +1,46 @@
 import { Types } from 'mongoose';
-import { BlingOrderType, BlingProductType } from '../types/bling.types';
-const ObjectId = Types.ObjectId;
+import axios, { AxiosError } from 'axios';
 
-// TODO: Insert documentation comment
+const baseUrl = 'https://api.pipedrive.com/v1/deals';
+interface ListParamsType {
+  start: number;
+  limit: number,
+  apiToken: string;
+}
+
+/**
+ * List all deals from pipedrive service
+ *
+ * @param {ListParamsType} {
+ *     start = 0,
+ *     limit = 100,
+ *     apiToken = 'b51865d76db88d36e9d37b362c04cc0ea7900649'
+ *   }
+ * @return {*}  {Promise<any>}
+ */
 const list = async (
-  { page = 0, limit = 100 }: {
-    page: number;
-    limit: number
-  }): Promise<any> => {
-
-  try {
-
-    return null;
-  } catch (error) {
-
-  }
-};
-
-// TODO: Insert documentation comment
-const save = async (
+  {
+    start = 0,
+    limit = 100,
+    apiToken = 'b51865d76db88d36e9d37b362c04cc0ea7900649'
+  }: ListParamsType
 ): Promise<any> => {
+
   try {
+    const { data } = await axios.get(baseUrl, {
+      params: {
+        start,
+        limit,
+        status: 'won',
+        sort: 'update_time DESC',
+        api_token: apiToken
+      }
+    });
 
-
-    // TODO: Create save method
-
-    return null;
-  } catch (error) {
-
+    return data;
+  } catch (reason) {
+    const error = reason as AxiosError;
   }
 };
 
-export { };
+export { list };

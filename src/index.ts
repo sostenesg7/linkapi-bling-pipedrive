@@ -64,7 +64,7 @@ httpServer.listen(3000, () => {
 
 const httpsServer = https.createServer(credentials, app);
 httpsServer.listen(443, () => {
-  logger.log('info', 'HTTP Server running on port 443');
+  logger.log('info', 'HTTPS Server running on port 443');
 });
 
 start();

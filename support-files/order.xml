@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pedido>
+  <cliente>
+    <nome>Organisys Software</nome>
+    <tipoPessoa>J</tipoPessoa>
+    <endereco>Rua Visconde de São Gabriel</endereco>
+    <cpf_cnpj>00000000000000</cpf_cnpj>
+    <ie>3067663000</ie>
+    <numero>392</numero>
+    <complemento>Sala 54</complemento>
+    <bairro>Cidade Alta</bairro>
+    <cep>95.700-000</cep>
+    <cidade>Bento Gonçalves</cidade>
+    <uf>RS</uf>
+  </cliente>
+  <itens>
+    <item>
+      <codigo>001</codigo>
+      <descricao>Caneta 001</descricao>
+      <un>Pç</un>
+      <qtde>10</qtde>
+      <vlr_unit>1.68</vlr_unit>
+    </item>
+  </itens>
+</pedido>

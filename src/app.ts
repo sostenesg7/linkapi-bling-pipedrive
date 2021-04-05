@@ -6,6 +6,7 @@ import { json } from 'body-parser';
 import { loggerWrite } from './util';
 import { errorHandler } from './middlewares';
 import apiRouter from './routes';
+import xml from 'xml';
 
 const app = express();
 app.set('trust proxy', true);
@@ -22,7 +23,7 @@ app.use('/api', apiRouter);
 app.all('*', async (req, res) => {
   try {
     res.status(404).send('Endereço não encontrado.');
-  } catch (reason) {}
+  } catch (reason) { }
 });
 
 app.use(errorHandler);

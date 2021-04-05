@@ -2,56 +2,56 @@ import { Request, Response, NextFunction } from 'express';
 import { Integration } from '../models';
 import { IntegrationDoc } from '../types/integration.types';
 import { Types } from 'mongoose';
-import { errors } from '../util';
 import { CustomRequest } from '../types/common.types';
-import { checkFilter, splitString } from '../util/helpers';
+import { blingService } from '../services';
+import { Order } from '../types/bling.types';
 const ObjectId = Types.ObjectId;
 
-/**
- * Integration list by director, title, genre and/or cast
- *
- * @param {Request} req
- * @param {Response} res
- * @return {*}  {Promise<Response>}
- */
-const list = async (
+const createOrder = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<Response | undefined> => {
-
-  const baseQuery = {};
-
   try {
-    const Integrations = await Integration.find({});
+    const order: Order = {
+      cliente: {
+        nome: 'Organisys Software',
+        tipoPessoa: 'J',
+        endereco: 'Rua Visconde de São Gabriel',
+        cpf_cnpj: '00000000000000',
+        ie: '3067663000',
+        numero: '392',
+        complemento: 'Sala 54',
+        bairro: 'Cidade Alta',
+        cep: '95.700-000',
+        cidade: 'Bento Gonçalves',
+        uf: 'RS',
+        fone: '5481153376',
+        email: 'teste@teste.com.br',
+      },
+      itens: [
+        {
+          item: {
+            codigo: '001',
+            descricao: 'Caneta 001',
+            un: 'Pç',
+            qtde: '10',
+            vlr_unit: '1.68',
+          }
+        },
+      ],
+    };
 
-    return res.status(200).json(Integrations);
+    const data = await blingService.createOrder({
+      apiKey:
+        '72fc8fab18ef3e077a0adbdd13125e089e997785206751f49fbca9ca48248821b97b9b86',
+      order,
+    });
+
+    return res.json(data);
   } catch (error) {
     next();
   }
 };
 
-/**
- * User create
- *
- * @param {CustomRequest<IntegrationDoc>} req
- * @param {Response} res
- * @return {*}  {Promise<Response>}
- */
-const save = async (
-  req: CustomRequest<IntegrationDoc>,
-  res: Response,
-  next: NextFunction
-): Promise<Response | undefined> => {
-  try {
-    const { id } = req.body;
-    const integration: IntegrationDoc | null = await Integration.findOne({});
-
-    return res.status(202).json(integration);
-  } catch (error) {
-    next(error);
-  }
-};
-
-
-export { save, list };
+export { createOrder };
