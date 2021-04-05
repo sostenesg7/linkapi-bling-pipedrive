@@ -1,10 +1,11 @@
 import { Types } from 'mongoose';
 import axios, { AxiosError } from 'axios';
+import { Deal, DealListHttpResponse } from '../types/pipedrive.types';
 
 const baseUrl = 'https://api.pipedrive.com/v1/deals';
 interface ListParamsType {
-  start: number;
-  limit: number,
+  start?: number;
+  limit?: number,
   apiToken: string;
 }
 
@@ -14,7 +15,7 @@ interface ListParamsType {
  * @param {ListParamsType} {
  *     start = 0,
  *     limit = 100,
- *     apiToken = 'b51865d76db88d36e9d37b362c04cc0ea7900649'
+ *     apiToken
  *   }
  * @return {*}  {Promise<any>}
  */
@@ -22,12 +23,12 @@ const list = async (
   {
     start = 0,
     limit = 100,
-    apiToken = 'b51865d76db88d36e9d37b362c04cc0ea7900649'
+    apiToken
   }: ListParamsType
-): Promise<any> => {
+): Promise<Deal[] | undefined> => {
 
   try {
-    const { data } = await axios.get(baseUrl, {
+    const { data }: { data: DealListHttpResponse } = await axios.get(baseUrl, {
       params: {
         start,
         limit,
@@ -37,9 +38,11 @@ const list = async (
       }
     });
 
-    return data;
+    return data.data;
   } catch (reason) {
     const error = reason as AxiosError;
+    console.error(error.response?.data);
+    Promise.reject();
   }
 };
 

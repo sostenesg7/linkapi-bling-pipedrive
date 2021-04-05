@@ -3,7 +3,7 @@ import { Integration } from '../models';
 import { IntegrationDoc } from '../types/integration.types';
 import { Types } from 'mongoose';
 import { CustomRequest } from '../types/common.types';
-import { blingService } from '../services';
+import { blingService, pipedriveService } from '../services';
 import { Order } from '../types/bling.types';
 const ObjectId = Types.ObjectId;
 
@@ -54,4 +54,21 @@ const createOrder = async (
   }
 };
 
-export { createOrder };
+const listOrders = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<Response | undefined> => {
+  try {
+
+    const data = await pipedriveService.list({
+      apiToken: 'b51865d76db88d36e9d37b362c04cc0ea7900649'
+    });
+
+    return res.json(data);
+  } catch (error) {
+    next();
+  }
+};
+
+export { createOrder, listOrders };

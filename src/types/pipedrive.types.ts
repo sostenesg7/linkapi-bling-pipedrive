@@ -1,4 +1,4 @@
-export interface DealListResponse {
+export interface DealListHttpResponse {
   success: boolean
   data: Array<Deal>
   additional_data: AdditionalData
