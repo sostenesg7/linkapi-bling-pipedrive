@@ -25,10 +25,10 @@ const list = async (
     limit = 100,
     apiToken
   }: ListParamsType
-): Promise<Deal[] | undefined> => {
+): Promise<DealListHttpResponse | undefined> => {
 
   try {
-    const { data }: { data: DealListHttpResponse } = await axios.get(baseUrl, {
+    const { data } = await axios.get(baseUrl, {
       params: {
         start,
         limit,
@@ -38,7 +38,7 @@ const list = async (
       }
     });
 
-    return data.data;
+    return data;
   } catch (reason) {
     const error = reason as AxiosError;
     console.error(error.response?.data);
