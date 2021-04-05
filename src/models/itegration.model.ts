@@ -9,6 +9,13 @@ const IntegrationSchema = new Schema(
       min: 0,
       required: true,
     },
+    dayOfYear: {
+      type: Number,
+      description: 'Day of year.',
+      min: 0,
+      max: 365,
+      required: true,
+    },
   },
   {
     timestamps: true,

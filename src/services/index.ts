@@ -1,0 +1,1 @@
+export * as integrationService from './integration.service';

@@ -62,7 +62,8 @@ const listOrders = async (
   try {
 
     const data = await pipedriveAPI.list({
-      apiToken: 'b51865d76db88d36e9d37b362c04cc0ea7900649'
+      apiToken: 'b51865d76db88d36e9d37b362c04cc0ea7900649',
+      limit: 1
     });
 
     return res.json(data);

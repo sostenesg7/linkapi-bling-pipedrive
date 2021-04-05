@@ -1,7 +1,8 @@
 import { Types } from 'mongoose';
-import { Order, Product, ProductHttpResponse } from '../types/bling.types';
+import { Order, OrderHttpResponse, Product, ProductHttpResponse } from '../types/bling.types';
 import axios, { AxiosError } from 'axios';
 import { parse as xmlToJSON } from 'js2xmlparser';
+import { logger } from '../util';
 
 const baseUrl = 'https://bling.com.br/Api/v2';
 interface CreateOrderType {
@@ -18,7 +19,7 @@ const createOrder = async (
     apiKey,
     order
   }: CreateOrderType
-): Promise<any> => {
+): Promise<OrderHttpResponse> => {
 
   try {
 
@@ -39,8 +40,8 @@ const createOrder = async (
     return data;
   } catch (reason) {
     const error = reason as AxiosError;
-    console.error(JSON.stringify(error.response?.data))
-    return Promise.reject('');
+    logger.error(error.response?.data);
+    return Promise.reject(error.response?.data);
   }
 };
 
