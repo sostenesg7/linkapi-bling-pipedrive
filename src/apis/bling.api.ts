@@ -49,9 +49,7 @@ const createOrder = async (
 
     return data;
   } catch (reason) {
-    const error = reason as AxiosError;
-    logger.error(error.response?.data);
-    return Promise.reject(error.response?.data);
+    return Promise.reject(reason);
   }
 };
 
@@ -80,8 +78,7 @@ const createProduct = async (
     return data;
   } catch (reason) {
     const error = reason as AxiosError;
-    console.error(JSON.stringify(error.response?.data))
-    return Promise.reject();
+    return Promise.reject(reason);
   }
 };
 

@@ -4,4 +4,5 @@ import { Order } from './bling.types';
 export interface QueueDoc extends Order, Document {
   createdAt?: Date
   updatedAt?: Date
+  __v?: number
 }

@@ -1,14 +1,13 @@
 import { blingAPI, pipedriveAPI } from '../apis'
 import { logger } from '../util';
 import cron from 'node-cron';
-import { createOrder } from '../apis/bling.api';
-import { Order } from '../types/bling.types';
 import { ErrorCodes } from '../util/errors';
 import { listDealProducts } from '../apis/pipedrive.api';
-import faker from 'faker';
 import Queue from '../models/queue.model';
-import { Deal } from '../types/pipedrive.types';
-import { transformPipedriveDealToBlingOrder, transformPipedriveProductToBlingItem } from '../util/helpers';
+import {
+  transformPipedriveDealToBlingOrder,
+  transformPipedriveProductToBlingItem
+} from '../util/helpers';
 
 const apiToken = 'b51865d76db88d36e9d37b362c04cc0ea7900649';
 
@@ -54,6 +53,11 @@ const insertBlingOrderWorker = cron.schedule('* * * * * *', async () => {
 
     const order = orderDoc.toObject();
 
+    delete order.id;
+    delete order.createdAt;
+    delete order._id;
+    delete order.updatedAt;
+
     /* Find deal products  */
     const dealProductsData = await listDealProducts({
       dealId: order.pipedriveDealId,
@@ -73,8 +77,13 @@ const insertBlingOrderWorker = cron.schedule('* * * * * *', async () => {
 
     if (Array.isArray(errors) && errors.length > 0) {
       logger.error(errors?.[0]?.erro.msg);
-      /* Return if some error is product already registered */
+      
+      /* 
+        Return if some error is product already registered 
+        and remove order from queue     
+      */
       if (errors.find(error => error?.erro?.cod === ErrorCodes.ORDER_ALREADY_EXISTS)) {
+        logger.info(`Removing already registered order ${order.pipedriveDealId} from queue...`)
         await orderDoc.remove();
         return;
       }
@@ -84,7 +93,7 @@ const insertBlingOrderWorker = cron.schedule('* * * * * *', async () => {
 
     /* If sucessfull delete the current document from queue */
     await orderDoc.remove();
-    logger.info(`Removing ${order.pipedriveDealId} from queue...`)
+    logger.info(`Removing ${order.pipedriveDealId} from queue...`);
 
   } catch (reason) {
     logger.error(JSON.stringify(reason, null, 2));

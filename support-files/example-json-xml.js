@@ -39,4 +39,3 @@ const jsonData = {
 
 const xmlData = xmlToJSON('produto', jsonData);
 
-console.log(xmlData);

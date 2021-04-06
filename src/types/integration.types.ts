@@ -1,8 +1,11 @@
 import { Document } from 'mongoose';
 
 export interface IntegrationType {
-  id?: string
-  total: number
+  /*
+    Last fetched deal id from pipedrive 
+    this id will be used while fetch more deals
+  */
+  lastPipedriveDealId: number
 }
 
 export interface IntegrationDoc extends IntegrationType, Document {

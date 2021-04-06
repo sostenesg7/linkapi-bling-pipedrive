@@ -40,6 +40,13 @@ const QueueSchema = new Schema(
         delete ret.__v;
       },
     },
+    toObject: {
+      transform(doc: QueueDoc, ret: QueueDoc) {
+        ret.id = ret._id;
+        delete ret._id;
+        delete ret.__v;
+      },
+    },
   }
 );
 
