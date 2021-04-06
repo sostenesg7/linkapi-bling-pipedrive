@@ -48,6 +48,16 @@ export interface Product {
   clonarDadosPai?: string
 }
 
+export interface OrderHttpResponseError {
+  retorno: {
+    erros: Array<{
+      erro: {
+        cod: number
+        msg: string
+      }
+    }>
+  }
+}
 export interface OrderHttpResponse {
   retorno: {
     pedidos: Array<{
@@ -59,9 +69,10 @@ export interface OrderHttpResponse {
   }
 }
 export interface Order {
+  pipedriveDealId: number;
   cliente: Client
   transporte?: Transport
-  itens: Array<{ item: Item }>
+  itens?: Array<{ item: Item }>
   parcelas?: Array<{ parcel: Parcel }>
   vlr_frete?: string
   vlr_desconto?: string
@@ -110,11 +121,11 @@ export interface Volume {
 }
 
 export interface Item {
-  codigo?: string
+  codigo?: number | string
   descricao?: string
   un?: string
-  qtde?: string
-  vlr_unit?: string
+  qtde?: number | string
+  vlr_unit?: number | string
 }
 
 export interface Parcel {

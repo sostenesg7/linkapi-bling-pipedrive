@@ -4,6 +4,7 @@ import http = require('http');
 import https = require('https');
 import { logger } from './util/logger';
 import { app } from './app';
+import { startWorker } from './services/integration.service';
 
 app.locals.ready = false;
 
@@ -49,8 +50,7 @@ const start = async () => {
     });
     logger.info('Database connection successfull.');
 
-    app.locals.logger = logger;
-    app.locals.ready = true;
+    startWorker();
   } catch (err) {
     logger.log('error', err);
     throw err;
@@ -58,7 +58,7 @@ const start = async () => {
 };
 
 const httpServer = http.createServer(app);
-httpServer.listen(3000, () => {
+httpServer.listen(80, () => {
   logger.log('info', 'HTTP Server running on port 3000');
 });
 

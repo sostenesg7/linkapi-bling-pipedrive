@@ -3,11 +3,26 @@ export interface DealListHttpResponse {
   data: Array<Deal>
   additional_data: AdditionalData
 }
+
+export interface Person {
+  active_flag: boolean
+  name: string
+  email: Array<{
+    value: string
+    primary: boolean
+  }>
+  phone: Array<{
+    label: string
+    value: string
+    primary: boolean
+  }>
+  value: number
+}
 export interface Deal {
   id: number
   creator_user_id: CreatorUserId
   user_id: UserId
-  person_id: any
+  person_id: Person
   org_id: any
   stage_id: number
   title: string

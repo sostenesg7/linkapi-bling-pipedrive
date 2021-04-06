@@ -5,16 +5,9 @@ const IntegrationSchema = new Schema(
   {
     total: {
       type: Number,
-      description: 'Order total value.',
-      min: 0,
-      required: true,
     },
     dayOfYear: {
       type: Number,
-      description: 'Day of year.',
-      min: 0,
-      max: 365,
-      required: true,
     },
   },
   {

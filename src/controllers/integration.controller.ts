@@ -14,6 +14,7 @@ const createOrder = async (
 ): Promise<Response | undefined> => {
   try {
     const order: Order = {
+      pipedriveDealId: 0,
       cliente: {
         nome: 'Organisys Software',
         tipoPessoa: 'J',
@@ -63,7 +64,7 @@ const listOrders = async (
 
     const data = await pipedriveAPI.list({
       apiToken: 'b51865d76db88d36e9d37b362c04cc0ea7900649',
-      limit: 1
+      limit: 100
     });
 
     return res.json(data);
