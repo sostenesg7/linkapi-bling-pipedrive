@@ -2,7 +2,7 @@ import { Document } from 'mongoose';
 
 export interface IntegrationType {
   nextPipedriveDealsPage: number
-  integratedDealsCount: number
+  lastIntegratedPageDealsCount: number
 }
 
 export interface IntegrationDoc extends IntegrationType, Document {

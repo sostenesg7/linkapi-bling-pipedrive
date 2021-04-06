@@ -15,7 +15,7 @@ const IntegrationSchema = new Schema(
       Count of integrated deals from last page
       this count will be used to skip previous inserted deals from last page
     */
-    integratedDealsCount: {
+    lastIntegratedPageDealsCount: {
       type: Number,
       default: 0,
     },
