@@ -3,11 +3,21 @@ import { IntegrationDoc } from '../types/integration.types';
 
 const IntegrationSchema = new Schema(
   {
-    total: {
+    /*
+      Last fetched deal page from pipedrive 
+      this id will be used to skip previous inserted deals
+    */
+    lastPipedriveDealsPage: {
       type: Number,
+      default: 0,
     },
-    dayOfYear: {
+    /*
+      Count of integrated deals from last page
+      this count will be used to skip previous inserted deals from last page
+    */
+    integratedDealsCount: {
       type: Number,
+      default: 0,
     },
   },
   {

@@ -107,6 +107,7 @@ export interface AdditionalData {
 
 export interface Pagination {
   start: number
+  next_start: number
   limit: number
   more_items_in_collection: boolean
 }

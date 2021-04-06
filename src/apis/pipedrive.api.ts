@@ -5,7 +5,9 @@ import { logger } from '../util';
 import pipedriveMock from './mocks/pipedrive.mock';
 import { DealProductsHttpResponse } from '../types/pipedrive.product.types';
 
-const baseUrl = 'https://api.pipedrive.com/v1/deals';
+const axiosClient = axios.create({
+  baseURL: 'https://api.pipedrive.com/v1/deals'
+});
 interface ListParamsType {
   start?: number;
   limit?: number,
@@ -40,12 +42,12 @@ const list = async (
 
     // return (pipedriveMock as any) as DealListHttpResponse;
 
-    const { data } = await axios.get(baseUrl, {
+    const { data } = await axiosClient.get('', {
       params: {
         start,
         limit,
         status: 'won',
-        sort: 'update_time DESC',
+        // sort: 'update_time DESC',
         api_token: apiToken
       }
     });
@@ -79,7 +81,7 @@ const listDealProducts = async (
 ): Promise<DealProductsHttpResponse> => {
   try {
 
-    const { data } = await axios.get(`${baseUrl}/${dealId}/products`, {
+    const { data } = await axiosClient.get(`/${dealId}/products`, {
       params: {
         start,
         limit,

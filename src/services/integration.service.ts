@@ -3,7 +3,7 @@ import { logger } from '../util';
 import cron from 'node-cron';
 import { ErrorCodes } from '../util/errors';
 import { listDealProducts } from '../apis/pipedrive.api';
-import Queue from '../models/queue.model';
+import { Queue, Resume, Integration } from '../models';
 import {
   transformPipedriveDealToBlingOrder,
   transformPipedriveProductToBlingItem
@@ -20,14 +20,34 @@ const listPipedriveDealsWorker = cron.schedule('* * * * *', async () => {
 
   try {
 
-    const listData = await pipedriveAPI.list({
+    const integrationDoc = await Integration.findOne({});
+
+    /* Find last queued page */
+    const start = integrationDoc?.lastPipedriveDealsPage || 0;
+    const integratedDealsCount = integrationDoc?.integratedDealsCount || 0;
+
+    const { data, additional_data } = await pipedriveAPI.list({
       apiToken,
-      limit: 100
+      limit: 100,
+      start
     });
 
-    const orders = transformPipedriveDealToBlingOrder(listData.data);
+    /* Filter deals on current page based on previous integration */
+    const notInsertedDealsFromCurrentPage = data.slice(integratedDealsCount);
+    const orders = transformPipedriveDealToBlingOrder(notInsertedDealsFromCurrentPage);
 
     await Queue.insertMany(orders);
+
+    // const lastPipedriveDealId = data[data.length - 1]?.id || 0;
+
+    await Integration.updateOne({}, {
+      $set: {
+        /* Save last queued page to skip previous inserted deals */
+        lastPipedriveDealsPage: additional_data.pagination.next_start || 0,
+        /* Save the total of queued deals in last page to skip previous inserted deals */
+        integratedDealsCount: data.length
+      }
+    }, { upsert: true });
 
     logger.info(`${orders.length} orders inserted in queue`)
   } catch (reason) {
@@ -58,6 +78,8 @@ const insertBlingOrderWorker = cron.schedule('* * * * * *', async () => {
     delete order._id;
     delete order.updatedAt;
 
+
+
     /* Find deal products  */
     const dealProductsData = await listDealProducts({
       dealId: order.pipedriveDealId,
@@ -65,6 +87,7 @@ const insertBlingOrderWorker = cron.schedule('* * * * * *', async () => {
     });
 
     order.itens = transformPipedriveProductToBlingItem(dealProductsData.data);
+
 
     /* Insert an order on bling service */
     const data = await blingAPI.createOrder({
@@ -77,7 +100,7 @@ const insertBlingOrderWorker = cron.schedule('* * * * * *', async () => {
 
     if (Array.isArray(errors) && errors.length > 0) {
       logger.error(errors?.[0]?.erro.msg);
-      
+
       /* 
         Return if some error is product already registered 
         and remove order from queue     
@@ -104,7 +127,8 @@ const insertBlingOrderWorker = cron.schedule('* * * * * *', async () => {
   timezone: 'America/Sao_Paulo'
 });
 
-const startWorker = () => {
+const startWorkers = async () => {
+
   logger.info('Starting pipedrive worker...');
   listPipedriveDealsWorker.start();
   logger.info('Starting bling worker...');
@@ -112,5 +136,5 @@ const startWorker = () => {
 }
 
 export {
-  startWorker
+  startWorkers
 }
