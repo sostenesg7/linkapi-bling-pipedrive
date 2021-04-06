@@ -7,7 +7,7 @@ const IntegrationSchema = new Schema(
       Last fetched deal page from pipedrive 
       this id will be used to skip previous inserted deals
     */
-    lastPipedriveDealsPage: {
+    nextPipedriveDealsPage: {
       type: Number,
       default: 0,
     },
