@@ -67,6 +67,12 @@ const startPipedriveWorker = async () => {
   await pipedriveQueue.process('listDealsJob', 1, processDealsList);
 };
 
+/**
+ * Start deals integration
+ * used in both manual and automatic integrations
+ *
+ * @return {*} 
+ */
 const startIntegration = async () => {
   try {
     /* Find next page saved from previous queue list integration job */
