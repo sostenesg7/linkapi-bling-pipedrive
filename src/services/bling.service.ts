@@ -54,6 +54,12 @@ blingQueue.on('drained', () => {
   logger.info(messages.BLING_WAITING_NEW_ORDERS);
 });
 
+/**
+ * Process a deal from orders list, insering on bling service
+ * and increasing the total per day of all orders
+ *
+ * @param {Queue.Job<{ order: Order }>} job
+ */
 const processDeal: Queue.ProcessCallbackFunction<any> = async (job: Queue.Job<{ order: Order }>) => {
 
   try {
@@ -93,6 +99,7 @@ const processDeal: Queue.ProcessCallbackFunction<any> = async (job: Queue.Job<{ 
       return
     }
 
+    /* Update the total per day of all orders integrated */
     await Integration.findOneAndUpdate({
       date: order.pipedriveCreatedAt.split(' ')[0]
     }, {
@@ -110,6 +117,10 @@ const processDeal: Queue.ProcessCallbackFunction<any> = async (job: Queue.Job<{ 
   }
 }
 
+/**
+ * Start bling queue worker
+ *
+ */
 const startBlingWorker = async () => {
   // await blingQueue.empty();
   await blingQueue.process(processDeal);

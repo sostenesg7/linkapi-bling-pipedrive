@@ -36,6 +36,12 @@ const pipedriveQueue = new Queue('pipedrive', {
   }
 });
 
+/**
+ * Process a deal list from pipedrive
+ * inserting any deal as a job
+ *
+ * @param {Queue.Job<any>} job
+ */
 const processDealsList: Queue.ProcessCallbackFunction<any> = async (job: Queue.Job<any>) => {
 
   try {
@@ -76,6 +82,10 @@ const processDealsList: Queue.ProcessCallbackFunction<any> = async (job: Queue.J
 
 }
 
+/**
+ * Start pipedrive queue worker
+ *
+ */
 const startPipedriveWorker = async () => {
 
   await pipedriveQueue.empty();
