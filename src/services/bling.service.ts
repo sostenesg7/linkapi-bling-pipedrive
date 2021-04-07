@@ -48,7 +48,6 @@ export const insertBlingOrderWorker = cron.schedule('* * * * * *', async () => {
 
     order.itens = transformPipedriveProductToBlingItem(dealProductsData.data);
 
-
     /* Insert an order on bling service */
     const data = await blingAPI.createOrder({
       apiKey:

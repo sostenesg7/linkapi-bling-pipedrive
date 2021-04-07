@@ -15,6 +15,8 @@ const createOrder = async (
   try {
     const order: Order = {
       pipedriveDealId: 0,
+      total: 0,
+      pipedriveCreatedAt: '',
       cliente: {
         nome: 'Organisys Software',
         tipoPessoa: 'J',

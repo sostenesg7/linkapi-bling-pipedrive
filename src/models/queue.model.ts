@@ -4,6 +4,8 @@ import { QueueDoc } from '../types/queue.types';
 const QueueSchema = new Schema(
   {
     pipedriveDealId: Number,
+    pipedriveCreatedAt: String,
+    total: Number,
     cliente: {
       nome: String,
       tipoPessoa: String,

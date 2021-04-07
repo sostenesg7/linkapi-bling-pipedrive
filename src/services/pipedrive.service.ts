@@ -33,17 +33,6 @@ export const listPipedriveDealsWorker = cron.schedule('* * * * *', async () => {
       start
     });
 
-    // let lastIntegratedPageDealsCount = integrationDoc?.lastIntegratedPageDealsCount || 0;
-    // let notInsertedDealsFromCurrentPage = data;
-
-    /* If is last page, filter deals on current page based on previous integration */
-    /* if (!additional_data.pagination.more_items_in_collection) {
-      notInsertedDealsFromCurrentPage = data.slice(lastIntegratedPageDealsCount);
-      lastIntegratedPageDealsCount = 0;
-    } else {
-      lastIntegratedPageDealsCount = data.length;
-    } */
-
     const orders = transformPipedriveDealToBlingOrder(data);
 
     await Queue.insertMany(orders);

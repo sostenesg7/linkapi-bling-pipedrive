@@ -10,3 +10,10 @@ export interface HttpError extends Error {
   code?: number
   keyValue?: any
 }
+
+
+export interface RedisConnectionType {
+  REDIS_HOST: string
+  REDIS_PORT: number
+  REDIS_PASSWORD: string
+}

@@ -70,6 +70,8 @@ export interface OrderHttpResponse {
 }
 export interface Order {
   pipedriveDealId: number;
+  total: number;
+  pipedriveCreatedAt: string;
   cliente: Client
   transporte?: Transport
   itens?: Array<{ item: Item }>

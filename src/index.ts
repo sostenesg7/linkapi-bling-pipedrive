@@ -58,7 +58,7 @@ const start = async () => {
 };
 
 const httpServer = http.createServer(app);
-httpServer.listen(80, () => {
+httpServer.listen(3000, () => {
   logger.log('info', 'HTTP Server running on port 3000');
 });
 
