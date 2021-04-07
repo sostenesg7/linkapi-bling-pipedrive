@@ -5,8 +5,10 @@ import ioredis from 'ioredis';
 import { pipedriveAPI } from '../apis';
 import { transformPipedriveDealToBlingOrder } from '../util/helpers';
 import { blingQueue } from './bling.service';
+import { ErrorMessages } from '../util/errors';
+import messages from '../util/messages';
 
-const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, PIPEDRIVE_API_KEY }: EnvType = (process.env as any);
+const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, PIPEDRIVE_API_KEY = '' }: EnvType = (process.env as any);
 
 const redis = new ioredis({
   host: REDIS_HOST,
@@ -15,11 +17,11 @@ const redis = new ioredis({
 });
 
 redis.on('connect', () => {
-  logger.info('PIPEDRIVE REDIS CONNECTED');
+  logger.info(messages.PIPEDRIVE_REDIS_CONNECTED);
 });
 
 redis.on('error', () => {
-  logger.info('PIPEDRIVE REDIS ERROR:');
+  logger.error(ErrorMessages.PIPEDRIVE_REDIS_ERROR);
 });
 
 const pipedriveQueue = new Queue('pipedrive', {
@@ -40,8 +42,6 @@ const processDealsList: Queue.ProcessCallbackFunction<any> = async (job: Queue.J
 
     /* Find next page saved from previous queue list integration job */
     const start = Number(await redis.get('next_start') || 0);
-
-    logger.info(`next_start: ${start}`);
 
     const { data, additional_data } = await pipedriveAPI.list({
       apiToken: PIPEDRIVE_API_KEY,
@@ -69,7 +69,7 @@ const processDealsList: Queue.ProcessCallbackFunction<any> = async (job: Queue.J
 
     await Promise.all(promises);
 
-    logger.info(`${orders.length} orders inserted in queue`)
+    logger.info(`${orders.length} ${messages.PIPEDRIVE_DEALS_INSERTED_ON_QUEUE}`);
   } catch (reason) {
     logger.error(reason);
   }

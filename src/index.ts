@@ -3,15 +3,29 @@ import { readFileSync } from 'fs';
 import http = require('http');
 import { logger } from './util/logger';
 import { app } from './app';
-import { startWorkers } from './services/integration.service';
+import { startPipedriveWorker } from './services/pipedrive.service';
+import { startBlingWorker } from './services/bling.service';
+import messages from './util/messages';
+import { errors } from './util';
+import { ErrorMessages } from './util/errors';
+import { EnvType } from './types/common.types';
+
+const { PORT }: EnvType = process.env;
+
+const startWorkers = async () => {
+  logger.info(messages.STARTING_BLING_SERVICE);
+  startPipedriveWorker();
+  logger.info(messages.STARTING_PIPEDRIVE_SERVICE);
+  startBlingWorker();
+}
 
 const start = async () => {
   if (!process.env.MONGO_URI) {
-    throw new Error('MONGO_URI must be defined.');
+    throw new Error(ErrorMessages.MONGO_URI_UNDEFINED);
   }
 
   if (!process.env.LOGGER_LEVEL) {
-    throw new Error('LOGGER_LEVEL must be defined');
+    throw new Error(ErrorMessages.LOGGER_LEVEL_UNDEFINED);
   }
 
   try {
@@ -21,7 +35,7 @@ const start = async () => {
       useCreateIndex: true,
       useFindAndModify: false,
     });
-    logger.info('Database connection successfull.');
+    logger.info(messages.MONGO_DATABASE_CONNECTION_SUCESSFULL);
 
     await startWorkers();
   } catch (error) {
@@ -32,8 +46,8 @@ const start = async () => {
 
 const httpServer = http.createServer(app);
 
-httpServer.listen(3000, () => {
-  logger.info('HTTP Server running on port 3000');
+httpServer.listen(PORT, () => {
+  logger.info(`${messages.HTTP_SERVER_STARTED} ${PORT}`);
 });
 
 start();

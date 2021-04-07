@@ -6,15 +6,16 @@ import { blingAPI } from '../apis';
 import { Order } from '../types/bling.types';
 import { listDealProducts } from '../apis/pipedrive.api';
 import { transformPipedriveProductToBlingItem } from '../util/helpers';
-import { ErrorCodes } from '../util/errors';
+import { ErrorCodes, ErrorMessages } from '../util/errors';
 import { Integration } from '../models';
+import messages from '../util/messages';
 
 const {
   REDIS_HOST,
   REDIS_PORT,
   REDIS_PASSWORD,
-  BLING_API_KEY,
-  PIPEDRIVE_API_KEY
+  BLING_API_KEY = '',
+  PIPEDRIVE_API_KEY = ''
 }: EnvType = (process.env as any);
 
 const redis = new ioredis({
@@ -24,11 +25,11 @@ const redis = new ioredis({
 });
 
 redis.on('connect', () => {
-  logger.info('BLING REDIS CONNECTED');
+  logger.info(messages.BLING_REDIS_CONNECTED);
 });
 
 redis.on('error', () => {
-  logger.info('BLING REDIS ERROR');
+  logger.info(ErrorMessages.BLING_REDIS_ERROR);
 });
 
 const blingQueue = new Queue('bling', {
@@ -50,7 +51,7 @@ const blingQueue = new Queue('bling', {
 });
 
 blingQueue.on('drained', () => {
-  logger.info('Waiting for new orders...');
+  logger.info(messages.BLING_WAITING_NEW_ORDERS);
 });
 
 const processDeal: Queue.ProcessCallbackFunction<any> = async (job: Queue.Job<{ order: Order }>) => {
@@ -78,13 +79,17 @@ const processDeal: Queue.ProcessCallbackFunction<any> = async (job: Queue.Job<{ 
       const error = errors?.[0]?.erro.msg
       logger.error(error);
 
-      /* 
-       * Return if some error is product already registered 
-       * and remove order from queue     
+      /*
+      * If has some error and the error is not order already exists
+      * throw an error, preventing job to be removed from queue
+      * If job attemps = 3 will be automatically removed from queue
       */
       if (!errors.find(error => error?.erro?.cod === ErrorCodes.ORDER_ALREADY_EXISTS)) {
         throw new Error(error);
       }
+      /* 
+       * Return if some error is product already registered
+      */
       return
     }
 
@@ -96,7 +101,9 @@ const processDeal: Queue.ProcessCallbackFunction<any> = async (job: Queue.Job<{ 
       }
     }, { upsert: true });
 
-    logger.info(`Order created ${data.retorno.pedidos?.[0]?.pedido?.idPedido}`);
+    const orderId = data.retorno.pedidos?.[0]?.pedido?.idPedido;
+
+    logger.info(`${messages.BLING_ORDER_CREATED} (${orderId})`);
 
   } catch (reason) {
     logger.error(reason);

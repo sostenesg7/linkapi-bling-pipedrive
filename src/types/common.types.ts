@@ -12,9 +12,10 @@ export interface HttpError extends Error {
 }
 
 export interface EnvType {
-  REDIS_HOST: string
-  REDIS_PORT: number
-  REDIS_PASSWORD: string
-  PIPEDRIVE_API_KEY: string
-  BLING_API_KEY: string
+  REDIS_HOST?: string
+  REDIS_PORT?: number
+  REDIS_PASSWORD?: string
+  PIPEDRIVE_API_KEY?: string
+  BLING_API_KEY?: string
+  PORT?: number
 }
