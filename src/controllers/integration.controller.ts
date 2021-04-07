@@ -1,12 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { Integration } from '../models';
-import { IntegrationDoc } from '../types/integration.types';
-import { Types } from 'mongoose';
-import { CustomRequest, EnvType } from '../types/common.types';
-import { blingAPI, pipedriveAPI } from '../apis';
-import { Order } from '../types/bling.types';
-
-const { PIPEDRIVE_API_KEY }: EnvType = process.env;
+import { EnvType } from '../types/common.types';
+import { startIntegration } from '../services/pipedrive.service';
 
 const listIntegrations = async (
   req: Request,
@@ -21,4 +16,17 @@ const listIntegrations = async (
   }
 };
 
-export { listIntegrations };
+const startManualIntegration = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<Response | undefined> => {
+  try {
+    const data = await startIntegration();
+    return res.json(data);
+  } catch (error) {
+    next();
+  }
+};
+
+export { listIntegrations, startManualIntegration };

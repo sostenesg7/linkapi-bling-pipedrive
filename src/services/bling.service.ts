@@ -97,6 +97,7 @@ const processDeal: Queue.ProcessCallbackFunction<any> = async (job: Queue.Job<{ 
       return null;
     }
 
+    // TODO: Remove update on every document, add to list
     /* Update the total per day of all orders integrated */
     await Integration.findOneAndUpdate({
       date: order.pipedriveCreatedAt.split(' ')[0]

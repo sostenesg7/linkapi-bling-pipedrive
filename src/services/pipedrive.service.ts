@@ -44,14 +44,31 @@ const pipedriveQueue = new Queue('pipedrive', {
  */
 const processDealsList: Queue.ProcessCallbackFunction<any> = async (job: Queue.Job<any>) => {
 
+  await startIntegration();
+
+}
+
+/**
+ * Start pipedrive queue worker
+ *
+ */
+const startPipedriveWorker = async () => {
+
+  await pipedriveQueue.empty();
+
+  await pipedriveQueue.add('listDealsJob', {}, {
+    jobId: 1,
+    /* Repeat every 10 seconds */
+    // repeat: { cron: '*/10 * * * * *', },
+    /* Repeat every minute */
+    repeat: { cron: '* * * * *', },
+  });
+
+  await pipedriveQueue.process('listDealsJob', 1, processDealsList);
+};
+
+const startIntegration = async () => {
   try {
-
-    const getWaitingCount = await blingQueue.getWaitingCount();
-
-    if (getWaitingCount > 0) {
-      //return;
-    }
-
     /* Find next page saved from previous queue list integration job */
     const start = Number(await redis.get('next_start') || 0);
 
@@ -89,34 +106,17 @@ const processDealsList: Queue.ProcessCallbackFunction<any> = async (job: Queue.J
 
     await blingQueue.addBulk(jobs);
 
-    logger.info(`${orders.length} ${messages.PIPEDRIVE_DEALS_INSERTED_ON_QUEUE}`);
+    const message = `${orders.length} ${messages.PIPEDRIVE_DEALS_INSERTED_ON_QUEUE}`;
+    logger.info(message);
+    return message;
   } catch (reason) {
     logger.error(reason);
   }
-
 }
-
-/**
- * Start pipedrive queue worker
- *
- */
-const startPipedriveWorker = async () => {
-
-  await pipedriveQueue.empty();
-
-  await pipedriveQueue.add('listDealsJob', {}, {
-    jobId: 1,
-    /* Repeat every 10 seconds */
-    // repeat: { cron: '*/10 * * * * *', },
-    /* Repeat every minute */
-    repeat: { cron: '* * * * *', },
-  });
-
-  await pipedriveQueue.process('listDealsJob', 1, processDealsList);
-};
 
 export {
   pipedriveQueue,
   redis,
   startPipedriveWorker,
+  startIntegration
 }
