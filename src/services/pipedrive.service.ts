@@ -51,7 +51,7 @@ const processDealsList: Queue.ProcessCallbackFunction<any> = async (job: Queue.J
 
     const { data, additional_data } = await pipedriveAPI.list({
       apiToken: PIPEDRIVE_API_KEY,
-      limit: 5,
+      limit: 100,
       start,
     });
 
@@ -62,10 +62,11 @@ const processDealsList: Queue.ProcessCallbackFunction<any> = async (job: Queue.J
 
     const orders = transformPipedriveDealToBlingOrder(data);
 
+    /* If has more itens, set next_start to next job continue from next deals page */
     if (more_items_in_collection) {
       await redis.set('next_start', next_start);
     } else {
-      await redis.set('next_start', 0);
+      // await redis.set('next_start', 0);
     }
 
     const promises = orders.map(order => blingQueue.add({ order }, {
@@ -77,7 +78,7 @@ const processDealsList: Queue.ProcessCallbackFunction<any> = async (job: Queue.J
 
     logger.info(`${orders.length} ${messages.PIPEDRIVE_DEALS_INSERTED_ON_QUEUE}`);
   } catch (reason) {
-    logger.error(reason);
+    // logger.error(reason);
   }
 
 }

@@ -9,6 +9,7 @@ import { transformPipedriveProductToBlingItem } from '../util/helpers';
 import { ErrorCodes, ErrorMessages } from '../util/errors';
 import { Integration } from '../models';
 import messages from '../util/messages';
+import { pipedriveQueue } from './pipedrive.service';
 
 const {
   REDIS_HOST,
@@ -50,8 +51,18 @@ const blingQueue = new Queue('bling', {
   }
 });
 
+/* the queue has processed all the waiting jobs */
 blingQueue.on('drained', () => {
-  logger.info(messages.BLING_WAITING_NEW_ORDERS);
+  /* Resume pipedrive queue to start new integrations */
+  // pipedriveQueue.resume();
+  // logger.info('Resuming pipedrive queue.');
+});
+
+/* A job has started. */
+blingQueue.on('active', () => {
+  /* Pause pipedrive queue to wait until all integrations are completed */
+  // pipedriveQueue.pause();
+  // logger.info('Pausing pipedrive queue.');
 });
 
 /**
@@ -96,7 +107,7 @@ const processDeal: Queue.ProcessCallbackFunction<any> = async (job: Queue.Job<{ 
       /* 
        * Return if some error is product already registered
       */
-      return
+      return;
     }
 
     /* Update the total per day of all orders integrated */
@@ -113,7 +124,7 @@ const processDeal: Queue.ProcessCallbackFunction<any> = async (job: Queue.Job<{ 
     logger.info(`${messages.BLING_ORDER_CREATED} (${orderId})`);
 
   } catch (reason) {
-    logger.error(reason);
+    // logger.error(reason);
   }
 }
 
