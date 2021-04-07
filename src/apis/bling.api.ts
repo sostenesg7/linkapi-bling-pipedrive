@@ -14,7 +14,7 @@ const client = axios.create({
   Bling only support 3 request per second and 30.000 requests per day
   if the api rate limit is reached the request will return 429 status (too many requests)
 */
-const http = rateLimit(client, { maxRequests: 2, perMilliseconds: 1000, maxRPS: 2 })
+const axiosClient = rateLimit(client, { maxRequests: 1, perMilliseconds: 1000, maxRPS: 1 })
 interface CreateOrderType {
   apiKey: string
   order: Order
@@ -24,6 +24,15 @@ interface CreateProductType {
   product: Product
 }
 
+/**
+ * Create a new order on bling service
+ *
+ * @param {CreateOrderType} {
+ *     apiKey,
+ *     order
+ *   }
+ * @return {*}  {(Promise<OrderHttpResponse & OrderHttpResponseError>)}
+ */
 const createOrder = async (
   {
     apiKey,
@@ -39,7 +48,7 @@ const createOrder = async (
     params.append('apikey', apiKey);
     params.append('xml', xml);
 
-    const { data } = await http.post('/pedido/json/', params,
+    const { data } = await axiosClient.post('/pedido/json/', params,
       {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
@@ -53,6 +62,15 @@ const createOrder = async (
   }
 };
 
+/**
+ * Create a new product on blink service
+ *
+ * @param {CreateProductType} {
+ *     apiKey,
+ *     product,
+ *   }
+ * @return {*}  {Promise<any>}
+ */
 const createProduct = async (
   {
     apiKey,

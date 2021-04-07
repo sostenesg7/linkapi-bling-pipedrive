@@ -11,9 +11,10 @@ export interface HttpError extends Error {
   keyValue?: any
 }
 
-
-export interface RedisConnectionType {
+export interface EnvType {
   REDIS_HOST: string
   REDIS_PORT: number
   REDIS_PASSWORD: string
+  PIPEDRIVE_API_KEY: string
+  BLING_API_KEY: string
 }

@@ -1,12 +1,12 @@
 import { logger } from '../util';
-import { listPipedriveDealsWorker } from './pipedrive.service';
-import { insertBlingOrderWorker } from './bling.service';
+import { startPipedriveWorker } from './pipedrive.service';
+import { startBlingWorker } from './bling.service';
 
 const startWorkers = async () => {
   logger.info('Starting pipedrive worker...');
-  listPipedriveDealsWorker.start();
+  startPipedriveWorker();
   logger.info('Starting bling worker...');
-  insertBlingOrderWorker.start();
+  startBlingWorker();
 }
 
 export {

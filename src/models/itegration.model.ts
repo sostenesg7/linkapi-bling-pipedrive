@@ -3,22 +3,15 @@ import { IntegrationDoc } from '../types/integration.types';
 
 const IntegrationSchema = new Schema(
   {
-    /*
-      Last fetched deal page from pipedrive 
-      this id will be used to skip previous inserted deals
-    */
-    nextPipedriveDealsPage: {
+    total: {
       type: Number,
-      default: 0,
     },
-    /*
-      Count of integrated deals from last page
-      this count will be used to skip previous inserted deals from last page
-    */
-    lastIntegratedPageDealsCount: {
+    dayOfYear: {
       type: Number,
-      default: 0,
     },
+    date: {
+      type: String
+    }
   },
   {
     timestamps: true,

@@ -1,16 +1,6 @@
 version: '3.5'
 
 services:
-  integrator:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - '3000:3000'
-      - '3001:443'
-    networks:
-      - integrator_network
-    restart: always
   redis-db:
     image: redis:6.0-rc3-alpine
     command: ['redis-server', '--appendonly', 'yes', '--requirepass', '12345']
@@ -19,7 +9,23 @@ services:
     restart: always
     networks:
       - integrator_network
+    volumes:
+      - redis-data:/data
+  integrator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    networks:
+      - integrator_network
+    restart: always
+    depends_on: [redis-db]
   
 networks:
   integrator_network:
     driver: bridge
+
+volumes:
+  redis-data:
+    

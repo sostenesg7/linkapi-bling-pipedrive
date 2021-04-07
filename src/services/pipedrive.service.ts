@@ -1,59 +1,80 @@
-import { blingAPI, pipedriveAPI } from '../apis'
 import { logger } from '../util';
-import cron from 'node-cron';
-import { ErrorCodes } from '../util/errors';
-import { listDealProducts } from '../apis/pipedrive.api';
-import { Queue, Resume, Integration } from '../models';
-import {
-  transformPipedriveDealToBlingOrder,
-  transformPipedriveProductToBlingItem
-} from '../util/helpers';
-import mongoose, { Types } from 'mongoose';
+import { EnvType } from '../types/common.types';
+import Queue from 'bull';
+import ioredis from 'ioredis';
+import { pipedriveAPI } from '../apis';
+import { transformPipedriveDealToBlingOrder } from '../util/helpers';
+import { blingQueue } from './bling.service';
 
+const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, PIPEDRIVE_API_KEY }: EnvType = (process.env as any);
 
-const apiToken = 'b51865d76db88d36e9d37b362c04cc0ea7900649';
+const redis = new ioredis({
+  host: REDIS_HOST,
+  port: Number(REDIS_PORT),
+  password: REDIS_PASSWORD,
+});
 
-// second: * * * * * *
-// minute: * * * * *
+redis.on('connect', () => {
+  logger.info('PIPEDRIVE REDIS CONNECTED');
+});
 
-/* Every minute */
-export const listPipedriveDealsWorker = cron.schedule('* * * * *', async () => {
-  logger.info('Listering for pipedrive deals...');
+redis.on('error', () => {
+  logger.info('PIPEDRIVE REDIS ERROR:');
+});
+
+const pipedriveQueue = new Queue('pipedrive', {
+  redis: {
+    host: REDIS_HOST,
+    port: REDIS_PORT,
+    password: REDIS_PASSWORD,
+  },
+  limiter: {
+    max: 2,
+    duration: 1000
+  }
+});
+
+const processDealsList: Queue.ProcessCallbackFunction<any> = async (job: Queue.Job<any>) => {
 
   try {
 
-    const integrationDoc = await Integration.findOne({});
-
-    /* Find last queued page */
-    const start = integrationDoc?.nextPipedriveDealsPage || 0;
-
     const { data, additional_data } = await pipedriveAPI.list({
-      apiToken,
-      limit: 5,
-      start
+      apiToken: PIPEDRIVE_API_KEY,
+      limit: 100,
+      start: 0
     });
 
     const orders = transformPipedriveDealToBlingOrder(data);
 
-    await Queue.insertMany(orders);
+    const promises = orders.map(order => blingQueue.add({ order }, {
+      attempts: 3,
+      removeOnComplete: true,
+    }));
 
-    // const lastPipedriveDealId = data[data.length - 1]?.id || 0;
-
-    await Integration.updateOne({}, {
-      $set: {
-        /* Save last queued page to skip previous inserted deals */
-        nextPipedriveDealsPage: Math.max(additional_data.pagination.next_start || 0, start),
-        /* Save the total of queued deals in last page to skip previous inserted deals */
-        // lastIntegratedPageDealsCount,
-      }
-    }, { upsert: true });
+    await Promise.all(promises);
 
     logger.info(`${orders.length} orders inserted in queue`)
   } catch (reason) {
     logger.error(reason);
   }
 
-}, {
-  scheduled: false,
-  timezone: 'America/Sao_Paulo'
-});
+}
+
+const startPipedriveWorker = async () => {
+
+  await pipedriveQueue.empty();
+
+  await pipedriveQueue.add('listDealsJob', {}, {
+    jobId: 1,
+    /* Repeate every 10 seconds */
+    repeat: { cron: '*/10 * * * * *', },
+  });
+
+  await pipedriveQueue.process('listDealsJob', 1, processDealsList);
+};
+
+export {
+  pipedriveQueue,
+  redis,
+  startPipedriveWorker,
+}

@@ -1,57 +1,74 @@
-import { blingAPI, pipedriveAPI } from '../apis'
 import { logger } from '../util';
-import cron from 'node-cron';
-import { ErrorCodes } from '../util/errors';
+import { EnvType } from '../types/common.types';
+import Queue from 'bull';
+import ioredis from 'ioredis';
+import { blingAPI } from '../apis';
+import { Order } from '../types/bling.types';
 import { listDealProducts } from '../apis/pipedrive.api';
-import { Queue, Resume, Integration } from '../models';
-import {
-  transformPipedriveDealToBlingOrder,
-  transformPipedriveProductToBlingItem
-} from '../util/helpers';
-import mongoose, { Types } from 'mongoose';
+import { transformPipedriveProductToBlingItem } from '../util/helpers';
+import { ErrorCodes } from '../util/errors';
+import { Integration } from '../models';
 
-const apiToken = 'b51865d76db88d36e9d37b362c04cc0ea7900649';
+const {
+  REDIS_HOST,
+  REDIS_PORT,
+  REDIS_PASSWORD,
+  BLING_API_KEY,
+  PIPEDRIVE_API_KEY
+}: EnvType = (process.env as any);
 
-// second: * * * * * *
-// minute: * * * * *
+const redis = new ioredis({
+  host: REDIS_HOST,
+  port: Number(REDIS_PORT),
+  password: REDIS_PASSWORD,
+});
 
-/* Every second */
-export const insertBlingOrderWorker = cron.schedule('* * * * * *', async () => {
-  logger.info('Listering for new orders...');
+redis.on('connect', () => {
+  logger.info('BLING REDIS CONNECTED');
+});
 
-  const session = await mongoose.startSession();
-  await session.startTransaction();
+redis.on('error', () => {
+  logger.info('BLING REDIS ERROR');
+});
+
+const blingQueue = new Queue('bling', {
+  redis: {
+    host: REDIS_HOST,
+    port: REDIS_PORT,
+    password: REDIS_PASSWORD,
+  },
+  /*
+  * Limit concurrent jobs to 1 per second
+  * to prevent rate limit from bling
+  * and total per day document update concurrency problem
+  * bling rate limit is 3 requests per second and 30.000 per day
+  */
+  limiter: {
+    max: 1,
+    duration: 1000
+  }
+});
+
+blingQueue.on('drained', () => {
+  logger.info('Waiting for new orders...');
+});
+
+const processDeal: Queue.ProcessCallbackFunction<any> = async (job: Queue.Job<{ order: Order }>) => {
 
   try {
-    /*
-      Find first inserted deal in queue list 
-    */
-    const orderDoc = await Queue.findOneAndRemove({}, {
-      session
-    }).sort({ _id: -1 });
-
-    /* Return if hasn't document in queue */
-    if (!orderDoc) return;
-
-    const order = orderDoc.toObject();
-
-    delete order.id;
-    delete order.createdAt;
-    delete order._id;
-    delete order.updatedAt;
+    const { order } = job.data;
 
     /* Find deal products  */
     const dealProductsData = await listDealProducts({
       dealId: order.pipedriveDealId,
-      apiToken
+      apiToken: PIPEDRIVE_API_KEY
     });
 
     order.itens = transformPipedriveProductToBlingItem(dealProductsData.data);
 
     /* Insert an order on bling service */
     const data = await blingAPI.createOrder({
-      apiKey:
-        '72fc8fab18ef3e077a0adbdd13125e089e997785206751f49fbca9ca48248821b97b9b86',
+      apiKey: BLING_API_KEY,
       order,
     });
 
@@ -62,32 +79,37 @@ export const insertBlingOrderWorker = cron.schedule('* * * * * *', async () => {
       logger.error(error);
 
       /* 
-        Return if some error is product already registered 
-        and remove order from queue     
+       * Return if some error is product already registered 
+       * and remove order from queue     
       */
       if (!errors.find(error => error?.erro?.cod === ErrorCodes.ORDER_ALREADY_EXISTS)) {
-        throw new Error()
-        //await orderDoc.remove();
-        //return;
+        throw new Error(error);
       }
+      return
     }
+
+    await Integration.findOneAndUpdate({
+      date: order.pipedriveCreatedAt.split(' ')[0]
+    }, {
+      $inc: {
+        total: order.total
+      }
+    }, { upsert: true });
 
     logger.info(`Order created ${data.retorno.pedidos?.[0]?.pedido?.idPedido}`);
 
-    session.commitTransaction();
-
-    /* If sucessfull delete the current document from queue */
-    // await orderDoc.remove();
-    // logger.info(`Removing ${order.pipedriveDealId} from queue...`);
-
   } catch (reason) {
-    // logger.error(JSON.stringify(reason, null, 2));
-    try {
-      session.abortTransaction();
-    } catch (error) { }
+    logger.error(reason);
   }
+}
 
-}, {
-  scheduled: false,
-  timezone: 'America/Sao_Paulo'
-});
+const startBlingWorker = async () => {
+  // await blingQueue.empty();
+  await blingQueue.process(processDeal);
+};
+
+export {
+  blingQueue,
+  redis,
+  startBlingWorker,
+}
