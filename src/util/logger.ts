@@ -14,13 +14,13 @@ if (!fs.existsSync('logs')) {
 export const logger = createLogger({
   format: combine(label({ label: '' }), timestamp(), logFormat),
   transports: [
-    new transports.File({
+    /* new transports.File({
       level: 'info',
       filename: './logs/log.log',
       handleExceptions: true,
       maxsize: 5242880, //5MB
       maxFiles: 5,
-    }),
+    }), */
     new transports.Console({
       level: 'debug',
       handleExceptions: true,

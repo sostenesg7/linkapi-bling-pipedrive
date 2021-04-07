@@ -38,13 +38,29 @@ const processDealsList: Queue.ProcessCallbackFunction<any> = async (job: Queue.J
 
   try {
 
+    /* Find next page saved from previous queue list integration job */
+    const start = Number(await redis.get('next_start') || 0);
+
+    logger.info(`next_start: ${start}`);
+
     const { data, additional_data } = await pipedriveAPI.list({
       apiToken: PIPEDRIVE_API_KEY,
-      limit: 100,
-      start: 0
+      limit: 5,
+      start,
     });
 
+    const {
+      next_start,
+      more_items_in_collection
+    } = additional_data.pagination;
+
     const orders = transformPipedriveDealToBlingOrder(data);
+
+    if (more_items_in_collection) {
+      await redis.set('next_start', next_start);
+    } else {
+      await redis.set('next_start', 0);
+    }
 
     const promises = orders.map(order => blingQueue.add({ order }, {
       attempts: 3,
