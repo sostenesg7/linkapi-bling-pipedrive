@@ -7,9 +7,9 @@ const logFormat = printf(({ level, message, label, timestamp }) => {
   return `${timestamp} [${label}] ${level}: ${message}`;
 });
 
-if (!fs.existsSync('logs')) {
+/* if (!fs.existsSync('logs')) {
   fs.mkdirSync('logs');
-}
+} */
 
 export const logger = createLogger({
   format: combine(label({ label: '' }), timestamp(), logFormat),

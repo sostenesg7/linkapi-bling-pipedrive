@@ -57,7 +57,8 @@ const processDealsList: Queue.ProcessCallbackFunction<any> = async (job: Queue.J
 
     const { data, additional_data } = await pipedriveAPI.list({
       apiToken: PIPEDRIVE_API_KEY,
-      limit: 100,
+      /* Fetch 20 deals per job */
+      limit: 20,
       start,
     });
 
@@ -74,16 +75,6 @@ const processDealsList: Queue.ProcessCallbackFunction<any> = async (job: Queue.J
     } else {
       await redis.set('next_start', 0);
     }
-
-    /* const jobs = orders.map(order =>
-      blingQueue.add({ order }, {
-        attempts: 3,
-        jobId: order.pipedriveDealId,
-        //removeOnComplete: false,
-        // removeOnFail: true,
-      })
-    ); */
-
 
     const jobs = orders.map(order => ({
       data: { order },
@@ -115,9 +106,9 @@ const startPipedriveWorker = async () => {
 
   await pipedriveQueue.add('listDealsJob', {}, {
     jobId: 1,
-    /* Repeate every 10 seconds */
+    /* Repeat every 10 seconds */
     // repeat: { cron: '*/10 * * * * *', },
-    /* Repeate every minute */
+    /* Repeat every minute */
     repeat: { cron: '* * * * *', },
   });
 

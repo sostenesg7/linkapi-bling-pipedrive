@@ -83,7 +83,7 @@ const processDeal: Queue.ProcessCallbackFunction<any> = async (job: Queue.Job<{ 
 
     if (Array.isArray(errors) && errors.length > 0) {
       const error = errors?.[0]?.erro.msg
-      logger.error(error);
+      // logger.error(error);
 
       /*
       * If has some error and the error is not order already exists
