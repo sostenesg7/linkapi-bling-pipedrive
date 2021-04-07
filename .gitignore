@@ -62,6 +62,8 @@ typings/
 # Optional REPL history
 .node_repl_history
 
+data
+
 # Output of 'npm pack'
 *.tgz
 

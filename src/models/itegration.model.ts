@@ -10,7 +10,8 @@ const IntegrationSchema = new Schema(
       type: Number,
     },
     date: {
-      type: String
+      type: String,
+      unique: true
     }
   },
   {

@@ -3,6 +3,10 @@ version: '3.5'
 services:
   redis:
     image: redis:6.0-rc3-alpine
+    hostname: redis
+    container_name: redis
+    extra_hosts:
+      - "host.docker.internal:172.17.0.1"
     command: ['redis-server', '--appendonly', 'yes', '--requirepass', '12345']
     ports:
       - '6379:6379'
@@ -10,22 +14,40 @@ services:
     networks:
       - integrator_network
     volumes:
-      - redis-data:/data
+      - ./data:/redis/db
+
+  mongo:
+    image: mongo
+    container_name: mongo
+    hostname: mongo
+    extra_hosts:
+      - "host.docker.internal:172.17.0.1"
+    volumes:
+      - ./data:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - integrator_network
+
   integrator:
+    hostname: integrator
+    container_name: integrator
+    extra_hosts:
+      - "host.docker.internal:172.17.0.1"
+    links:
+      - redis
+      - mongo
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - '3000:3000'
+    env_file: ./.env
     networks:
       - integrator_network
     restart: always
-    depends_on: [redis]
+    depends_on: [redis, mongo]
   
 networks:
   integrator_network:
     driver: bridge
-
-volumes:
-  redis-data:
-    

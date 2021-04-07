@@ -61,8 +61,6 @@ const processDeal: Queue.ProcessCallbackFunction<any> = async (job: Queue.Job<{ 
 
   try {
 
-    console.log('JOB', job.id)
-
     const { order } = job.data;
 
     /* Find deal products  */
