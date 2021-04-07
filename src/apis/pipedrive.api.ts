@@ -47,7 +47,9 @@ const list = async (
         start,
         limit,
         status: 'won',
-        // sort: 'update_time DESC',
+        /* Order by creation date */
+        sort: 'add_time DESC',
+        //sort: 'update_time DESC',
         api_token: apiToken
       }
     });

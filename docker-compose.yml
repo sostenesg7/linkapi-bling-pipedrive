@@ -1,7 +1,7 @@
 version: '3.5'
 
 services:
-  redis-db:
+  redis:
     image: redis:6.0-rc3-alpine
     command: ['redis-server', '--appendonly', 'yes', '--requirepass', '12345']
     ports:
@@ -20,7 +20,7 @@ services:
     networks:
       - integrator_network
     restart: always
-    depends_on: [redis-db]
+    depends_on: [redis]
   
 networks:
   integrator_network:

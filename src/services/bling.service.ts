@@ -51,20 +51,6 @@ const blingQueue = new Queue('bling', {
   }
 });
 
-/* the queue has processed all the waiting jobs */
-blingQueue.on('drained', () => {
-  /* Resume pipedrive queue to start new integrations */
-  // pipedriveQueue.resume();
-  // logger.info('Resuming pipedrive queue.');
-});
-
-/* A job has started. */
-blingQueue.on('active', () => {
-  /* Pause pipedrive queue to wait until all integrations are completed */
-  // pipedriveQueue.pause();
-  // logger.info('Pausing pipedrive queue.');
-});
-
 /**
  * Process a deal from orders list, insering on bling service
  * and increasing the total per day of all orders
@@ -74,6 +60,9 @@ blingQueue.on('active', () => {
 const processDeal: Queue.ProcessCallbackFunction<any> = async (job: Queue.Job<{ order: Order }>) => {
 
   try {
+
+    console.log('JOB', job.id)
+
     const { order } = job.data;
 
     /* Find deal products  */
@@ -107,7 +96,7 @@ const processDeal: Queue.ProcessCallbackFunction<any> = async (job: Queue.Job<{ 
       /* 
        * Return if some error is product already registered
       */
-      return;
+      return null;
     }
 
     /* Update the total per day of all orders integrated */
@@ -122,10 +111,11 @@ const processDeal: Queue.ProcessCallbackFunction<any> = async (job: Queue.Job<{ 
     const orderId = data.retorno.pedidos?.[0]?.pedido?.idPedido;
 
     logger.info(`${messages.BLING_ORDER_CREATED} (${orderId})`);
-
   } catch (reason) {
-    // logger.error(reason);
+    logger.error(reason);
+    throw reason;
   }
+
 }
 
 /**
@@ -133,7 +123,7 @@ const processDeal: Queue.ProcessCallbackFunction<any> = async (job: Queue.Job<{ 
  *
  */
 const startBlingWorker = async () => {
-  // await blingQueue.empty();
+  //await blingQueue.empty();
   await blingQueue.process(processDeal);
 };
 

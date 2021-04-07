@@ -1,6 +1,6 @@
 import { logger } from '../util';
 import { EnvType } from '../types/common.types';
-import Queue from 'bull';
+import Queue, { Job } from 'bull';
 import ioredis from 'ioredis';
 import { pipedriveAPI } from '../apis';
 import { transformPipedriveDealToBlingOrder } from '../util/helpers';
@@ -31,7 +31,7 @@ const pipedriveQueue = new Queue('pipedrive', {
     password: REDIS_PASSWORD,
   },
   limiter: {
-    max: 2,
+    max: 1,
     duration: 1000
   }
 });
@@ -45,6 +45,12 @@ const pipedriveQueue = new Queue('pipedrive', {
 const processDealsList: Queue.ProcessCallbackFunction<any> = async (job: Queue.Job<any>) => {
 
   try {
+
+    const getWaitingCount = await blingQueue.getWaitingCount();
+
+    if (getWaitingCount > 0) {
+      //return;
+    }
 
     /* Find next page saved from previous queue list integration job */
     const start = Number(await redis.get('next_start') || 0);
@@ -66,19 +72,35 @@ const processDealsList: Queue.ProcessCallbackFunction<any> = async (job: Queue.J
     if (more_items_in_collection) {
       await redis.set('next_start', next_start);
     } else {
-      // await redis.set('next_start', 0);
+      await redis.set('next_start', 0);
     }
 
-    const promises = orders.map(order => blingQueue.add({ order }, {
-      attempts: 3,
-      removeOnComplete: true,
-    }));
+    /* const jobs = orders.map(order =>
+      blingQueue.add({ order }, {
+        attempts: 3,
+        jobId: order.pipedriveDealId,
+        //removeOnComplete: false,
+        // removeOnFail: true,
+      })
+    ); */
 
-    await Promise.all(promises);
+
+    const jobs = orders.map(order => ({
+      data: { order },
+      opts: {
+        jobId: order.pipedriveDealId,
+        attempts: 3,
+        /* Set removeOnComplete to false, to skip already inserted jobs to be processed */
+        removeOnComplete: true,
+        removeOnFail: true,
+      }
+    }) as Job);
+
+    await blingQueue.addBulk(jobs);
 
     logger.info(`${orders.length} ${messages.PIPEDRIVE_DEALS_INSERTED_ON_QUEUE}`);
   } catch (reason) {
-    // logger.error(reason);
+    logger.error(reason);
   }
 
 }
@@ -94,7 +116,9 @@ const startPipedriveWorker = async () => {
   await pipedriveQueue.add('listDealsJob', {}, {
     jobId: 1,
     /* Repeate every 10 seconds */
-    repeat: { cron: '*/10 * * * * *', },
+    // repeat: { cron: '*/10 * * * * *', },
+    /* Repeate every minute */
+    repeat: { cron: '* * * * *', },
   });
 
   await pipedriveQueue.process('listDealsJob', 1, processDealsList);
