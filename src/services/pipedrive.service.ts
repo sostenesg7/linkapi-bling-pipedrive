@@ -58,8 +58,6 @@ const startPipedriveWorker = async () => {
 
   await pipedriveQueue.add('listDealsJob', {}, {
     jobId: 1,
-    /* Repeat every 10 seconds */
-    // repeat: { cron: '*/10 * * * * *', },
     /* Repeat every minute */
     repeat: { cron: '* * * * *', },
   });
@@ -99,6 +97,7 @@ const startIntegration = async () => {
       await redis.set('next_start', 0);
     }
 
+    /* Create bling order insertion jobs */
     const jobs = orders.map(order => ({
       data: { order },
       opts: {

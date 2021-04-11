@@ -3,6 +3,14 @@ import { Integration } from '../models';
 import { EnvType } from '../types/common.types';
 import { startIntegration } from '../services/pipedrive.service';
 
+/**
+ * List all integrations per day
+ *
+ * @param {Request} req
+ * @param {Response} res
+ * @param {NextFunction} next
+ * @return {*}  {(Promise<Response | undefined>)}
+ */
 const listIntegrations = async (
   req: Request,
   res: Response,
@@ -16,6 +24,14 @@ const listIntegrations = async (
   }
 };
 
+/**
+ * Start a manual integration
+ *
+ * @param {Request} req
+ * @param {Response} res
+ * @param {NextFunction} next
+ * @return {*}  {(Promise<Response | undefined>)}
+ */
 const startManualIntegration = async (
   req: Request,
   res: Response,
