@@ -3,12 +3,14 @@ import { EnvType } from '../types/common.types';
 import Queue, { Job } from 'bull';
 import ioredis from 'ioredis';
 import { pipedriveAPI } from '../apis';
-import { transformPipedriveDealToBlingOrder } from '../util/helpers';
+import { transformOrdersToJobs, transformPipedriveDealToBlingOrder } from '../util/helpers';
 import { blingQueue } from './bling.service';
 import { ErrorMessages } from '../util/errors';
-import { Messages } from '../util/constants';
+import { DEALS_FILTER_REDIS_KEY, Messages } from '../util/constants';
+import { getDealsSummary } from '../apis/pipedrive.api';
+import { Integration } from '../models';
 
-const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, PIPEDRIVE_API_KEY = '' }: EnvType = (process.env as any);
+const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, PIPEDRIVE_API_KEY = '' } = process.env as EnvType;
 
 const redis = new ioredis({
   host: REDIS_HOST,
@@ -80,6 +82,22 @@ const startIntegration = async () => {
     /* Find next page saved from previous queue list integration job */
     const start = Number(await redis.get('next_start') || 0);
 
+    const filterId = Number(await redis.get(DEALS_FILTER_REDIS_KEY));
+
+    /* Get deals summary of current day and store */
+    const summary = await getDealsSummary({
+      filterId,
+      apiToken: PIPEDRIVE_API_KEY
+    });
+
+    await Integration.findOneAndUpdate({
+      date: new Date().toLocaleDateString()
+    }, {
+      $inc: {
+        total: summary.data.total_currency_converted_value
+      }
+    }, { upsert: true });
+
     const { data, additional_data } = await pipedriveAPI.list({
       apiToken: PIPEDRIVE_API_KEY,
       /* Fetch 20 deals per job */
@@ -95,23 +113,10 @@ const startIntegration = async () => {
     const orders = transformPipedriveDealToBlingOrder(data);
 
     /* If has more itens, set next_start to next job continue from next deals page */
-    if (more_items_in_collection) {
-      await redis.set('next_start', next_start);
-    } else {
-      await redis.set('next_start', 0);
-    }
+    await redis.set('next_start', more_items_in_collection ? next_start : 0);
 
     /* Create bling order insertion jobs */
-    const jobs = orders.map(order => ({
-      data: { order },
-      opts: {
-        jobId: order.pipedriveDealId,
-        attempts: 3,
-        /* Set removeOnComplete to false, to skip already inserted jobs to be processed */
-        removeOnComplete: true,
-        removeOnFail: true,
-      }
-    }) as Job);
+    const jobs = transformOrdersToJobs(orders);
 
     await blingQueue.addBulk(jobs);
 

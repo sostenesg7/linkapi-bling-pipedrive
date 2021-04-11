@@ -111,3 +111,19 @@ export interface Pagination {
   limit: number
   more_items_in_collection: boolean
 }
+
+
+export interface RequestType {
+  apiToken: string
+}
+
+export interface ListParamsType extends RequestType {
+  start?: number
+  limit?: number
+}
+
+export interface ListOrderItemsParamsType extends RequestType {
+  start?: number
+  limit?: number
+  dealId: number
+}

@@ -1,7 +1,14 @@
+import { Job } from 'bull';
 import { Order } from '../types/bling.types';
 import { DealProduct, Product } from '../types/pipedrive.product.types';
 import { Deal } from '../types/pipedrive.types';
 
+/**
+* Transform a deal from pipedrive to an order in bling
+*
+* @param {Array<Deal>} deals
+* @return {*} 
+*/
 export const transformPipedriveDealToBlingOrder = (deals: Array<Deal>) => {
   const orderList: Order[] = deals.map((deal, index) => {
 
@@ -41,6 +48,12 @@ export const transformPipedriveDealToBlingOrder = (deals: Array<Deal>) => {
   return orderList;
 };
 
+/**
+* Transform pipedrive product into bling order item
+*
+* @param {Array<DealProduct>} products
+* @return {*} 
+*/
 export const transformPipedriveProductToBlingItem = (products: Array<DealProduct>) => {
   return products?.map((product) => (
     {
@@ -55,3 +68,19 @@ export const transformPipedriveProductToBlingItem = (products: Array<DealProduct
     }
   ))
 };
+
+/**
+ * Transform orders array to jobs array
+ *
+ * @param {Order[]} orders
+ */
+export const transformOrdersToJobs = (orders: Order[]) => orders.map(order => ({
+  data: { order },
+  opts: {
+    jobId: order.pipedriveDealId,
+    attempts: 3,
+    /* Set removeOnComplete to false, to skip already inserted jobs to be processed */
+    removeOnComplete: true,
+    removeOnFail: true,
+  }
+}) as Job);

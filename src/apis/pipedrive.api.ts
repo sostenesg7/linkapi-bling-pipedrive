@@ -1,32 +1,17 @@
-import { Types } from 'mongoose';
 import axios, { AxiosError } from 'axios';
-import { Deal, DealListHttpResponse } from '../types/pipedrive.types';
+import { DealListHttpResponse } from '../types/pipedrive.types';
 import { logger } from '../util';
-import pipedriveMock from './mocks/pipedrive.mock';
 import { DealProductsHttpResponse } from '../types/pipedrive.product.types';
 import { redis } from '../services/pipedrive.service';
-import { OrderHttpResponse } from '../types/bling.types';
-import { FilterDealsHttpResponse } from '../types/pipedrive.filter.types';
-import { DealsFilter, DEALS_FILTER_REDIS_KEY } from '../util/constants';
+import { ListParamsType, ListOrderItemsParamsType, RequestType } from '../types/pipedrive.types';
+import { FilterDealsHttpResponse, } from '../types/pipedrive.filter.types';
+import { DealsFilterWithStatusWonAndCreationDataIsToday, DEALS_FILTER_REDIS_KEY } from '../util/constants';
+import { DealSummaryHttpResponse } from '../types/pipedrive.summary.types';
 
 const axiosClient = axios.create({
   baseURL: 'https://api.pipedrive.com/v1'
 });
 
-interface RequestType {
-  apiToken: string
-}
-
-interface ListParamsType extends RequestType {
-  start?: number
-  limit?: number
-}
-
-interface ListOrderItemsParamsType extends RequestType {
-  start?: number
-  limit?: number
-  dealId: number
-}
 
 /**
  * List all deals from pipedrive service
@@ -124,7 +109,7 @@ const createDealsFilter = async (
 ): Promise<FilterDealsHttpResponse> => {
   try {
 
-    const { data } = await axiosClient.post(`/filters`, DealsFilter, {
+    const { data } = await axiosClient.post(`/filters`, DealsFilterWithStatusWonAndCreationDataIsToday, {
       params: {
         api_token: apiToken,
       }
@@ -169,4 +154,42 @@ const getFilterById = async (
   }
 };
 
-export { list, listDealProducts, createDealsFilter, getFilterById };
+/**
+ * Returns summary of all the deals.
+ *
+ * @param {(RequestType & { filterId: number })} {
+ *     filterId,
+ *     apiToken,
+ *   }
+ * @return {*}  {Promise<DealSummaryHttpResponse>}
+ */
+const getDealsSummary = async (
+  {
+    filterId,
+    apiToken,
+  }: RequestType & { filterId: number }
+): Promise<DealSummaryHttpResponse> => {
+  try {
+
+    const { data } = await axiosClient.get(`/deals/summary`, {
+      params: {
+        api_token: apiToken,
+        filter_id: filterId
+      }
+    });
+
+    return data;
+  } catch (reason) {
+    const error = reason as AxiosError;
+    logger.error(JSON.stringify(error.response?.data, null, 2));
+    return Promise.reject(error.response?.data);
+  }
+};
+
+export {
+  list,
+  listDealProducts,
+  createDealsFilter,
+  getFilterById,
+  getDealsSummary
+};

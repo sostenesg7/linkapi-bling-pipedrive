@@ -38,7 +38,7 @@ const start = async () => {
     logger.info(Messages.MONGO_DATABASE_CONNECTION_SUCESSFULL);
 
     /* Remove all integration docs to start a clean integration*/
-    await Integration.deleteMany({});
+    // await Integration.deleteMany({});
     /* Set all previous informations about integrations */
     await redis.set('next_start', 0);
 
