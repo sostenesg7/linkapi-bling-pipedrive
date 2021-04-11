@@ -80,7 +80,7 @@ const processDeal: Queue.ProcessCallbackFunction<any> = async (job: Queue.Job<{ 
     const errors = data.retorno.erros;
 
     if (Array.isArray(errors) && errors.length > 0) {
-      const error = errors?.[0]?.erro.msg
+      const error = errors?.[0]?.erro.msg;
       // logger.error(error);
 
       /*
