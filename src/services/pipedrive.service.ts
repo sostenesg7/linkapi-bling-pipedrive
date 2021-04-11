@@ -91,7 +91,7 @@ const startIntegration = async () => {
     });
 
     await Integration.findOneAndUpdate({
-      date: new Date().toLocaleDateString()
+      date: new Date().toISOString().split('T')[0]
     }, {
       $inc: {
         total: summary.data.total_currency_converted_value

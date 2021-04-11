@@ -5,7 +5,7 @@ import { integrationValidator } from '../validators';
 
 const router = express.Router();
 
-router.get('/', listIntegrations);;
+router.get('/', listIntegrations);
 router.get('/manual', startManualIntegration);;
 
 export default router;
