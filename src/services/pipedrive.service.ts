@@ -80,7 +80,7 @@ const startIntegration = async () => {
   try {
     logger.info(Messages.STARTING_NEW_INTEGRATION);
     /* Find next page saved from previous queue list integration job */
-    const start = Number(await redis.get('next_start') || 0);
+    const start = Number(await redis.get('next_start')) || 0;
 
     const filterId = Number(await redis.get(DEALS_FILTER_REDIS_KEY));
 
