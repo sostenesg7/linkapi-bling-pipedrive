@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { Integration } from '../models';
+import { Summary } from '../models';
 import { startIntegration } from '../services/pipedrive.service';
 
 /**
@@ -16,7 +16,7 @@ const listIntegrations = async (
   next: NextFunction
 ): Promise<Response | undefined> => {
   try {
-    const integratons = await Integration.find({});
+    const integratons = await Summary.find({});
     return res.json(integratons);
   } catch (error) {
     next();

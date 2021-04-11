@@ -8,7 +8,7 @@ import { blingQueue } from './bling.service';
 import { ErrorMessages } from '../util/errors';
 import { DEALS_FILTER_REDIS_KEY, Messages } from '../util/constants';
 import { getDealsSummary } from '../apis/pipedrive.api';
-import { Integration } from '../models';
+import { Summary } from '../models';
 
 const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, PIPEDRIVE_API_KEY = '' } = process.env as EnvType;
 
@@ -90,7 +90,7 @@ const startIntegration = async () => {
       apiToken: PIPEDRIVE_API_KEY
     });
 
-    await Integration.findOneAndUpdate({
+    await Summary.findOneAndUpdate({
       date: new Date().toISOString().split('T')[0]
     }, {
       $inc: {

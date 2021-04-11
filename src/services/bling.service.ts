@@ -7,7 +7,7 @@ import { Order } from '../types/bling.types';
 import { listDealProducts } from '../apis/pipedrive.api';
 import { transformPipedriveProductToBlingItem } from '../util/helpers';
 import { ErrorCodes, ErrorMessages } from '../util/errors';
-import { Integration } from '../models';
+import { Summary } from '../models';
 import { Messages } from '../util/constants';
 
 const {
@@ -97,7 +97,7 @@ const processDeal: Queue.ProcessCallbackFunction<any> = async (job: Queue.Job<{ 
     }
 
     /* Update the total per day of all orders integrated */
-    /* await Integration.findOneAndUpdate({
+    /* await Summary.findOneAndUpdate({
       date: order.pipedriveCreatedAt.split(' ')[0]
     }, {
       $inc: {

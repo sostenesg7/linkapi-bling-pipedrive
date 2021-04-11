@@ -6,7 +6,7 @@ import { startPipedriveWorker } from './services/pipedrive.service';
 import { redis, startBlingWorker } from './services/bling.service';
 import { ErrorMessages } from './util/errors';
 import { EnvType } from './types/common.types';
-import { Integration } from './models';
+import { Summary } from './models';
 import { startAutomaticConfiguration } from './services/configuration.service';
 import { Messages } from './util/constants';
 
@@ -38,7 +38,7 @@ const start = async () => {
     logger.info(Messages.MONGO_DATABASE_CONNECTION_SUCESSFULL);
 
     /* Remove all integration docs to start a clean integration*/
-    // await Integration.deleteMany({});
+    // await Summary.deleteMany({});
     /* Set all previous informations about integrations */
     await redis.set('next_start', 0);
 

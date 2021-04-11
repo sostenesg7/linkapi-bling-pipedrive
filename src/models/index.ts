@@ -1,1 +1,1 @@
-export { default as Integration } from './itegration.model';
+export { default as Summary } from './summary.model';

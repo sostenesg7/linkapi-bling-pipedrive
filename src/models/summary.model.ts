@@ -28,8 +28,8 @@ const IntegrationSchema = new Schema(
 
 interface IntegrationModel extends mongoose.Model<IntegrationDoc> { }
 
-const Integration = mongoose.model<IntegrationDoc, IntegrationModel>('Integration', IntegrationSchema);
+const Summary = mongoose.model<IntegrationDoc, IntegrationModel>('Summary', IntegrationSchema);
 
-Integration.createCollection({});
+Summary.createCollection({});
 
-export default Integration;
+export default Summary;

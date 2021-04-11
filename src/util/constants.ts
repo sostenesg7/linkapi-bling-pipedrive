@@ -1,6 +1,6 @@
 const requiredMessage = (field: string) => `O campo ${field} é requerido.`;
 
-export const Integration = {
+export const Summary = {
   blingApiKey: requiredMessage('blingApiKey'),
   pipedriveApiKey: requiredMessage('blingApiKey.'),
 };
