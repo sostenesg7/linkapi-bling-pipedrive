@@ -4,21 +4,28 @@ import { Deal, DealListHttpResponse } from '../types/pipedrive.types';
 import { logger } from '../util';
 import pipedriveMock from './mocks/pipedrive.mock';
 import { DealProductsHttpResponse } from '../types/pipedrive.product.types';
+import { redis } from '../services/pipedrive.service';
+import { OrderHttpResponse } from '../types/bling.types';
+import { FilterDealsHttpResponse } from '../types/pipedrive.filter.types';
+import { DealsFilter, DEALS_FILTER_REDIS_KEY } from '../util/constants';
 
 const axiosClient = axios.create({
-  baseURL: 'https://api.pipedrive.com/v1/deals'
+  baseURL: 'https://api.pipedrive.com/v1'
 });
-interface ListParamsType {
-  start?: number;
-  limit?: number,
-  apiToken: string;
+
+interface RequestType {
+  apiToken: string
 }
 
-interface ListOrderItemsParamsType {
-  start?: number;
-  limit?: number,
-  apiToken: string;
-  dealId: number;
+interface ListParamsType extends RequestType {
+  start?: number
+  limit?: number
+}
+
+interface ListOrderItemsParamsType extends RequestType {
+  start?: number
+  limit?: number
+  dealId: number
 }
 
 /**
@@ -40,14 +47,15 @@ const list = async (
 ): Promise<DealListHttpResponse> => {
   try {
 
-    // return (pipedriveMock as any) as DealListHttpResponse;
+    const filterId = await redis.get(DEALS_FILTER_REDIS_KEY);
 
-    const { data } = await axiosClient.get('', {
+    const { data } = await axiosClient.get('/deals', {
       params: {
         start,
         limit,
-        status: 'won',
-        /* Order by creation date */
+        // status: 'won',
+        filter_id: filterId,
+        // Order by creation date
         sort: 'add_time DESC',
         //sort: 'update_time DESC',
         api_token: apiToken
@@ -83,7 +91,7 @@ const listDealProducts = async (
 ): Promise<DealProductsHttpResponse> => {
   try {
 
-    const { data } = await axiosClient.get(`/${dealId}/products`, {
+    const { data } = await axiosClient.get(`/deals/${dealId}/products`, {
       params: {
         start,
         limit,
@@ -100,4 +108,65 @@ const listDealProducts = async (
   }
 };
 
-export { list, listDealProducts };
+/**
+ * Create a deal filter with status=won
+ * and creation_date=today
+ *
+ * @param {RequestType} {
+ *     apiToken,
+ *   }
+ * @return {*}  {Promise<FilterDealsHttpResponse>}
+ */
+const createDealsFilter = async (
+  {
+    apiToken,
+  }: RequestType
+): Promise<FilterDealsHttpResponse> => {
+  try {
+
+    const { data } = await axiosClient.post(`/filters`, DealsFilter, {
+      params: {
+        api_token: apiToken,
+      }
+    });
+
+    return data;
+  } catch (reason) {
+    const error = reason as AxiosError;
+    logger.error(JSON.stringify(error.response?.data, null, 2));
+    return Promise.reject(error.response?.data);
+  }
+};
+
+/**
+ * Returns data about a specific filter.
+ *
+ * @param {(RequestType & { filterId: number })} {
+ *     filterId,
+ *     apiToken,
+ *   }
+ * @return {*}  {Promise<FilterDealsHttpResponse>}
+ */
+const getFilterById = async (
+  {
+    filterId,
+    apiToken,
+  }: RequestType & { filterId: number }
+): Promise<FilterDealsHttpResponse> => {
+  try {
+
+    const { data } = await axiosClient.get(`/filters/${filterId}`, {
+      params: {
+        api_token: apiToken,
+      }
+    });
+
+    return data;
+  } catch (reason) {
+    const error = reason as AxiosError;
+    logger.error(JSON.stringify(error.response?.data, null, 2));
+    return Promise.reject(error.response?.data);
+  }
+};
+
+export { list, listDealProducts, createDealsFilter, getFilterById };

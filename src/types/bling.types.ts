@@ -2,12 +2,12 @@ export interface ProductHttpResponse {
   retorno: Response
 }
 export interface Response {
-  produtos: Array<{ product: Product }>
+  produtos: { produto: Product }[]
 }
 
 export interface Product {
   id?: string
-  codigo?: string
+  codigo: string
   descricao?: string
   tipo?: string
   situacao?: string

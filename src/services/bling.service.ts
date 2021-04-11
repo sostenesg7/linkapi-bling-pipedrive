@@ -8,8 +8,7 @@ import { listDealProducts } from '../apis/pipedrive.api';
 import { transformPipedriveProductToBlingItem } from '../util/helpers';
 import { ErrorCodes, ErrorMessages } from '../util/errors';
 import { Integration } from '../models';
-import messages from '../util/messages';
-import { pipedriveQueue } from './pipedrive.service';
+import { Messages } from '../util/constants';
 
 const {
   REDIS_HOST,
@@ -26,7 +25,7 @@ const redis = new ioredis({
 });
 
 redis.on('connect', () => {
-  logger.info(messages.BLING_REDIS_CONNECTED);
+  logger.info(Messages.BLING_REDIS_CONNECTED);
 });
 
 redis.on('error', () => {
@@ -109,7 +108,7 @@ const processDeal: Queue.ProcessCallbackFunction<any> = async (job: Queue.Job<{ 
 
     const orderId = data.retorno.pedidos?.[0]?.pedido?.idPedido;
 
-    logger.info(`${messages.BLING_ORDER_CREATED} (${orderId})`);
+    logger.info(`${Messages.BLING_ORDER_CREATED} (${orderId})`);
   } catch (reason) {
     logger.error(reason);
     throw reason;

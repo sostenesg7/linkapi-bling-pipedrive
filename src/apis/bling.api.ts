@@ -69,14 +69,14 @@ const createOrder = async (
  *     apiKey,
  *     product,
  *   }
- * @return {*}  {Promise<any>}
+ * @return {*}  {Promise<ProductHttpResponse>}
  */
 const createProduct = async (
   {
     apiKey,
     product,
   }: CreateProductType
-): Promise<any> => {
+): Promise<ProductHttpResponse> => {
 
   try {
     const xml = xmlToJSON('produto', product);
@@ -85,14 +85,14 @@ const createProduct = async (
     params.append('apikey', apiKey);
     params.append('xml', xml);
 
-    const { data } = await axios.post('/produto/json/', params,
+    const { data } = await axiosClient.post('/produto/json/', params,
       {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
         },
       }
     );
-
+    
     return data;
   } catch (reason) {
     const error = reason as AxiosError;

@@ -6,7 +6,7 @@ import { pipedriveAPI } from '../apis';
 import { transformPipedriveDealToBlingOrder } from '../util/helpers';
 import { blingQueue } from './bling.service';
 import { ErrorMessages } from '../util/errors';
-import messages from '../util/messages';
+import { Messages } from '../util/constants';
 
 const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, PIPEDRIVE_API_KEY = '' }: EnvType = (process.env as any);
 
@@ -17,7 +17,7 @@ const redis = new ioredis({
 });
 
 redis.on('connect', () => {
-  logger.info(messages.PIPEDRIVE_REDIS_CONNECTED);
+  logger.info(Messages.PIPEDRIVE_REDIS_CONNECTED);
 });
 
 redis.on('error', () => {
@@ -58,7 +58,10 @@ const startPipedriveWorker = async () => {
 
   await pipedriveQueue.add('listDealsJob', {}, {
     jobId: 1,
-    /* Repeat every minute */
+    /*
+    * Repeate every 1 minute to inprove integration speed in development
+    *
+    */
     repeat: { cron: '* * * * *', },
   });
 
@@ -73,6 +76,7 @@ const startPipedriveWorker = async () => {
  */
 const startIntegration = async () => {
   try {
+    logger.info(Messages.STARTING_NEW_INTEGRATION);
     /* Find next page saved from previous queue list integration job */
     const start = Number(await redis.get('next_start') || 0);
 
@@ -111,7 +115,7 @@ const startIntegration = async () => {
 
     await blingQueue.addBulk(jobs);
 
-    const message = `${orders.length} ${messages.PIPEDRIVE_DEALS_INSERTED_ON_QUEUE}`;
+    const message = `${orders.length} ${Messages.PIPEDRIVE_DEALS_INSERTED_ON_QUEUE}`;
     logger.info(message);
     return message;
   } catch (reason) {

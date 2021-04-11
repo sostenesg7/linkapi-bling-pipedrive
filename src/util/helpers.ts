@@ -45,7 +45,7 @@ export const transformPipedriveProductToBlingItem = (products: Array<DealProduct
   return products?.map((product) => (
     {
       item: {
-        // Fixed product id
+        // Fixed product code
         codigo: '223435780',
         descricao: product.name,
         un: 'Pç',
