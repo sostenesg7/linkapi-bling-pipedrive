@@ -9,10 +9,10 @@ Estes documento README tem como objetivo fornecer as informações necessárias 
 - Agregar as oportunidades inseridas no bling, tendo um registro no mongo por dia contendo a soma de todos os valores de todos os pedido com ganho daquele dia.
 
 # 🔧 Configuração
-  ### Para configurar o integrador, é necessário editar o arquivo .env e adicionar as seguintes variáveis
+  #### Para configurar o integrador, é necessário editar o arquivo .env e adicionar as seguintes variáveis
     PIPEDRIVE_API_KEY=Sua chave de API do Pipedrive
     BLING_API_KEY=Sua chave de API do Bling
- ### Após isso, iniciar o serviço, executando: 
+ #### Após isso, iniciar o serviço, executando: 
     docker-compose up --build
 # 🚀 Como utilizar o integrador?
 
