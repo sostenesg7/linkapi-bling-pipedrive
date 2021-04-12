@@ -1,8 +1,6 @@
-import { Types } from 'mongoose';
 import { Order, OrderHttpResponse, OrderHttpResponseError, Product, ProductHttpResponse } from '../types/bling.types';
 import axios, { AxiosError } from 'axios';
 import { parse as xmlToJSON } from 'js2xmlparser';
-import { logger } from '../util';
 import rateLimit from 'axios-rate-limit';
 
 const client = axios.create({

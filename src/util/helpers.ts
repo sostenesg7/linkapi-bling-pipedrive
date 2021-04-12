@@ -27,7 +27,7 @@ export const transformPipedriveDealToBlingOrder = (deals: Array<Deal>) => {
       pipedriveCreatedAt: add_time,
       total: value,
       cliente: {
-        nome: person_id?.name || 'Usuário sem nome',
+        nome: person_id?.name,
         fone: phone,
         email,
         // 'tipoPessoa': 'J',
