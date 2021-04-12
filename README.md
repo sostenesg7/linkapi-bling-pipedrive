@@ -18,17 +18,17 @@ Estes documento README tem como objetivo fornecer as informações necessárias 
 
   1. Criar um negócio no Pipedrive;
   2. Alterar o status do negócio para "Ganho";
-  3. Aguardar um minuto pela integração automática, ou realizar a integração manual (Mais informações abaixo);
+  3. Aguardar um minuto pela integração automática, ou realizar a integração manual ([Mais informações](#manual));
   4. Navegar até a lista de pedidos no Bling.
     
 ## Integração
   - ### Automática
     #### O integrador executa a tarefa de integração a cada um minuto. 
   - ### Manual
-    Realizar uma requisição [POST] http://localhost:3000/api/integration/ (Visite a secão Links, para acesso à documentação dos endpoints)
+    Realizar uma requisição [POST] http://localhost:3000/api/integration/ (Visite a secão [Links](#-links), para acesso à documentação dos endpoints)
 
 ## Listar total por dia
-  - Realizar uma requisição [GET] http://localhost:3000/api/integration/ (Visite a secão Links, para acesso à documentação dos endpoints)
+  - Realizar uma requisição [GET] http://localhost:3000/api/integration/ (Visite a secão [Links](#-links), para acesso à documentação dos endpoints)
 
 
 # 🖥  Tecnologias utilizadas
@@ -43,7 +43,7 @@ Estes documento README tem como objetivo fornecer as informações necessárias 
   - **mongoose**
 - Os serviços são executados em containers **Docker**
 
-# 🔗 Links
+# 🔗 Links úteis
 
 - Documentação Pipedrive https://developers.pipedrive.com/docs/api/v1
 - Documentação Bling:
