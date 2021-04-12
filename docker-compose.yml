@@ -47,9 +47,6 @@ services:
       - integrator_network
     restart: always
     depends_on: [redis, mongo]
-    #RETIRAR VOLUME
-    #volumes:
-    #  - ./:./app
   
 networks:
   integrator_network:

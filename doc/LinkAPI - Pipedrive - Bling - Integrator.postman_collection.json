@@ -1,0 +1,75 @@
+{
+	"info": {
+		"_postman_id": "31939dfd-f53e-4cc7-9fd0-1e45172d9433",
+		"name": "LinkAPI - Pipedrive - Bling - Integrator",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "List daily orders total",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/integration/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"integration",
+						""
+					]
+				},
+				"description": "List daily orders total"
+			},
+			"response": []
+		},
+		{
+			"name": "Start a manual integration",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/integration/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"integration",
+						""
+					]
+				},
+				"description": "Start a manual integration to current day"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "localhost:3000"
+		}
+	]
+}
