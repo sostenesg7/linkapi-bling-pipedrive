@@ -14,4 +14,6 @@ export const ErrorMessages = {
   LOGGER_LEVEL_UNDEFINED: 'LOGGER_LEVEL must be defined.',
   BLING_REDIS_ERROR: 'Bling redis queue error.',
   PIPEDRIVE_REDIS_ERROR: 'Pipedrive redis queue error.',
+  BLING_API_KEY_UNDEFINED: 'BLING_API_KEY must be defined. Visit https://github.com/sostenesg7/linkapi-bling-pipedrive#-configura%C3%A7%C3%A3o',
+  PIPEDRIVE_API_KEY_UNDEFINED: 'PIPEDRIVE_API_KEY must be defined. Visit https://github.com/sostenesg7/linkapi-bling-pipedrive#-configura%C3%A7%C3%A3o',
 }

@@ -20,15 +20,22 @@ const startWorkers = async () => {
 }
 
 const start = async () => {
-  if (!process.env.MONGO_URI) {
-    throw new Error(ErrorMessages.MONGO_URI_UNDEFINED);
-  }
-
-  if (!process.env.LOGGER_LEVEL) {
-    throw new Error(ErrorMessages.LOGGER_LEVEL_UNDEFINED);
-  }
 
   try {
+
+    if (!process.env.MONGO_URI) {
+      throw new Error(ErrorMessages.MONGO_URI_UNDEFINED);
+    }
+
+    if (!process.env.PIPEDRIVE_API_KEY
+    ) {
+      throw new Error(ErrorMessages.PIPEDRIVE_API_KEY_UNDEFINED);
+    }
+
+    if (!process.env.BLING_API_KEY) {
+      throw new Error(ErrorMessages.BLING_API_KEY_UNDEFINED);
+    }
+
     await mongose.connect(process.env.MONGO_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
