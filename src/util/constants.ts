@@ -30,6 +30,7 @@ export const Messages = {
   STARTING_AUTOMATIC_CONFIGURATION: 'Starting automatic configuration....',
   PIPEDRIVE_CREATING_DEALS_FILTER: 'Creating pipedrive deals filter....',
   BLING_CREATING_PRODUCT: 'Creating bling product....',
+  NO_ORDERS_AVAILABLE: 'No new orders available.'
 };
 
 export const DEALS_FILTER_REDIS_KEY = 'pipedrive_daily_deals_filter';

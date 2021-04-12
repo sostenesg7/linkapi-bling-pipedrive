@@ -103,6 +103,10 @@ const startIntegration = async () => {
       start,
     });
 
+    if (!Array.isArray(data) || data.length === 0) {
+      return Messages.NO_ORDERS_AVAILABLE;
+    }
+
     const {
       next_start,
       more_items_in_collection
