@@ -25,10 +25,10 @@ Estes documento README tem como objetivo fornecer as informações necessárias 
   - ### Automática
     #### O integrador executa a tarefa de integração a cada um minuto. 
   - ### Manual
-    Realizar uma requisição [POST] http://localhost:3000/api/integration/ (Visite a secão [Links](#-links-úteis), para acesso à documentação dos endpoints)
+    Realizar uma requisição [POST] http://localhost:3000/api/integration/ (Visite a secão [Links úteis](#-links-úteis), para acesso à documentação dos endpoints)
 
 ## Listar total por dia
-  - Realizar uma requisição [GET] http://localhost:3000/api/integration/ (Visite a secão [Links](#-links-úteis), para acesso à documentação dos endpoints)
+  - Realizar uma requisição [GET] http://localhost:3000/api/integration/ (Visite a secão [Links úteis](#-links-úteis), para acesso à documentação dos endpoints)
 
 
 # 🖥  Tecnologias utilizadas
