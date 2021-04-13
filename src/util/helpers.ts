@@ -19,8 +19,8 @@ export const transformPipedriveDealToBlingOrder = (deals: Array<Deal>) => {
       value,
     } = deal;
 
-    const phone = person_id?.email.find(({ primary }) => primary)?.value;
-    const email = person_id?.phone.find(({ primary }) => primary)?.value;
+    const phone = person_id?.phone.find(({ primary }) => primary)?.value;
+    const email = person_id?.email.find(({ primary }) => primary)?.value;
 
     const order: Order = {
       pipedriveDealId: id,
